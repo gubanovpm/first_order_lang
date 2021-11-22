@@ -7,6 +7,7 @@ set (SOURCES "./sources/main.cpp"
              "./sources/predicate.cpp"
              "./sources/function.cpp"
              "./sources/term.cpp"
+             "./sources/formula.cpp"
              )
 
 set (HEADERS "./include/signature.hpp"
@@ -15,6 +16,7 @@ set (HEADERS "./include/signature.hpp"
              "./include/function.hpp"
              "./include/lexer.hpp"
              "./include/term.hpp"
+             "./include/formula.hpp"
             )
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --std=c++2a")

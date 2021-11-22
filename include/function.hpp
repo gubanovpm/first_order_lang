@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include "./default.hpp"
+
 namespace first_order_language {
 
 struct Function final{

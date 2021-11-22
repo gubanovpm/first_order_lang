@@ -21,6 +21,7 @@ public:
     ILexem(lexem_kind_t type) :
         type_(type) {}
     virtual void show() const = 0;
+    lexem_kind_t getType() const { return type_; }
     virtual ~ILexem() {}
 };
 
@@ -67,6 +68,7 @@ private:
 public:
 
     Lexer(std::string buffer = "");
+    size_t size() const { return lexems_.size(); }
     void show() const;
     virtual ~Lexer();
 
