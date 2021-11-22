@@ -22,12 +22,12 @@ public:
 
 };
 
-static const std::vector <Predicate> __default_predicates__ = { {"<" , 2, executeLess2}, 
-                                                         {">" , 2, executeMore2}, 
-                                                         {"=" , 2, executeEqual2},
-                                                         {"!=", 2, executeNEqual2}, 
-                                                         {"<=", 2, executeLessEq2}, 
-                                                         {">=", 2, executeMoreEq2} };
+static const std::vector <Predicate> __default_predicates__ = { {"<" , 2, executeLess2  }, 
+                                                                {">" , 2, executeMore2  }, 
+                                                                {"=" , 2, executeEqual2 },
+                                                                {"<>", 2, executeNEqual2}, 
+                                                                {"<=", 2, executeLessEq2}, 
+                                                                {">=", 2, executeMoreEq2} };
 
 }
 

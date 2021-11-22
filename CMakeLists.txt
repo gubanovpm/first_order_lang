@@ -6,6 +6,7 @@ set (SOURCES "./sources/main.cpp"
              "./sources/lexer.cpp"
              "./sources/predicate.cpp"
              "./sources/function.cpp"
+             "./sources/term.cpp"
              )
 
 set (HEADERS "./include/signature.hpp"
@@ -13,8 +14,9 @@ set (HEADERS "./include/signature.hpp"
              "./include/predicate.hpp"
              "./include/function.hpp"
              "./include/lexer.hpp"
+             "./include/term.hpp"
             )
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wextra --std=c++2a")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --std=c++2a")
 
 add_executable(first_order_language ${SOURCES})

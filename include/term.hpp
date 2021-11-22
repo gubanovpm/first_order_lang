@@ -1,9 +1,9 @@
+#include <iostream>
+#include <vector>
+
 #include "./default.hpp"
 #include "./function.hpp"
 #include "./predicate.hpp"
-
-#include <iostream>
-#include <vector>
 
 namespace first_order_language {
 
