@@ -2,7 +2,7 @@
 
 namespace first_order_language {
 
-struct Function {
+struct Function final{
 private:
     std::string name_;
     size_t valence_;
@@ -16,6 +16,7 @@ public:
 
     SigEType execute(const std::vector <SigEType> &value);
     std::string getName() const;
+    size_t getValence() const;
 };
 
 static const std::vector < Function > __default_functions__ = { {"+",  2, executeADD2 }, 

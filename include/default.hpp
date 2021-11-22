@@ -4,6 +4,9 @@
 using SigEType = int;
 
 namespace first_order_language {
+
+enum term_kind_t {TERM_C = 0, TERM_V, TERM_F, TERM_P};
+
 static SigEType executeADD2  (std::vector <SigEType> argv) {
     return argv[0] + argv[1];
 }

@@ -11,3 +11,7 @@ bool first_order_language::Predicate::execute(const std::vector <SigEType> &valu
 std::string first_order_language::Predicate::getName() const{
     return name_;
 }
+
+size_t first_order_language::Predicate::getValence() const {
+    return valence_;
+}

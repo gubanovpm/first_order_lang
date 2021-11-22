@@ -3,10 +3,10 @@
 #include "../include/predicate.hpp"
 #include "../include/function.hpp"
 
-#include "./default.cpp"
+#include "../include/default.hpp"
 
 first_order_language::Signature::Signature() {
-    std::cout << "Starting signature initialize...\nPlease, enter the signature fields : Constants Predicates Functions" << std::endl ;
+    std::cout << "Starting signature initialize...\nPlease, enter the signature fields : Constants Functions Predicates" << std::endl ;
 
     size_t c_count_, p_count_, f_count_;
     std::cin  >> c_count_ ; SigEType x;

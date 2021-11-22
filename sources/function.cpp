@@ -11,3 +11,7 @@ SigEType first_order_language::Function::execute(const std::vector <SigEType> &v
 std::string first_order_language::Function::getName() const{
     return name_;
 }
+
+size_t first_order_language::Function::getValence() const {
+    return valence_;
+}

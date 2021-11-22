@@ -4,7 +4,7 @@
 
 namespace first_order_language {
 
-struct Predicate {
+struct Predicate final{
 private:
     std::string name_;
     size_t valence_;
@@ -17,6 +17,7 @@ public:
     };
 
     std::string getName() const;
+    size_t getValence() const;
     bool execute(const std::vector <SigEType> &value);
 
 };
