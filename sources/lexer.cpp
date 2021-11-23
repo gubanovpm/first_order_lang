@@ -5,6 +5,24 @@ void first_order_language::LexemB::show()  const {
     else std::cout << ")";
 }
 
+int first_order_language::LexemB::kind() const {
+    return kind_;
+}
+
+int first_order_language::LexemOP::kind() const {
+    return kind_;
+}
+
+int first_order_language::LexemF::kind() const {
+    return type_;
+}
+
+int first_order_language::LexemQ::kind() const {
+    return kind_;
+}
+
+
+
 void first_order_language::LexemOP::show() const {
     switch (kind_) {
         case OP_NOT : std::cout << "~"  ; break;
