@@ -20,6 +20,7 @@ public:
     ITreeNode   *left_;
     ITreeNode   *right_;
 
+    void setBrac(bool x) { isBrac = x; }
     ITreeNode(node_kind_t type, ITreeNode *left = nullptr, ITreeNode * right = nullptr) :
         type_(type), 
         left_(left),
@@ -30,6 +31,7 @@ public:
 struct TreeNodeQ final : public ITreeNode {
 private:
     quantifier_kind_t kind_;
+    std::string name_;
 public:
     TreeNodeQ(quantifier_kind_t kind) : 
         ITreeNode(NODE_Q),
@@ -83,6 +85,7 @@ private:
     ITreeNode *parse_term (const Lexer &lexems, size_t &state);
 public:
     Formula(const Lexer &lex_array);
+    ~Formula();
 };
 
 }

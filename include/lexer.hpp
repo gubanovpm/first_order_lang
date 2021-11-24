@@ -21,7 +21,7 @@ public:
     ILexem(lexem_kind_t type) :
         type_(type) {}
     virtual void show() const = 0;
-    lexem_kind_t getType() const { return type_; }
+    lexem_kind_t type() const { return type_; }
     virtual int kind() const = 0;
     virtual ~ILexem() {}
 };
