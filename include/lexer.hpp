@@ -23,6 +23,7 @@ public:
     virtual void show() const = 0;
     lexem_kind_t type() const { return type_; }
     virtual int kind() const = 0;
+    virtual std::string name() const { return "__NOT_A_NAMEABLE_LEXEM__"; };
     virtual ~ILexem() {}
 };
 
@@ -55,6 +56,7 @@ public:
         ILexem(type), name_(name) {}
     void show() const override;
     int kind() const override;
+    std::string name() const override { return name_; }
 };
 
 struct LexemQ final : public ILexem {

@@ -2,6 +2,7 @@
 
 #include "../include/signature.hpp"
 #include "../include/lexer.hpp"
+#include "../include/formula.hpp"
 
 int main () {
   #if 0
@@ -16,8 +17,8 @@ int main () {
   lexems.show();
   #endif
 
-  #if 0
-
+  #if 1
+  first_order_language::Formula parser(test_lexer);
   #endif
   
   return 0;

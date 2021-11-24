@@ -7,6 +7,8 @@
 
 namespace first_order_language {
 
+// for the future
+
 struct ITerm {
 protected:
     term_kind_t kind_;

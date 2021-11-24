@@ -33,9 +33,10 @@ private:
     quantifier_kind_t kind_;
     std::string name_;
 public:
-    TreeNodeQ(quantifier_kind_t kind) : 
+    TreeNodeQ(quantifier_kind_t kind, std::string name) : 
         ITreeNode(NODE_Q),
-        kind_(kind) {}
+        kind_(kind), 
+        name_(name) {}
 };
 
 struct TreeNodeV final : public ITreeNode {
@@ -49,18 +50,20 @@ public:
 
 struct TreeNodeF final : public ITreeNode {
 private:
-    Function *function_;
+    Function  function_;
 public:
-    TreeNodeF(Function *function) :
+    std::vector <ITreeNode *> arguments_;
+    TreeNodeF(Function function) :
         ITreeNode(NODE_F), 
         function_(function) {}
 };
 
 struct TreeNodeP final : public ITreeNode {
 private:
-    Predicate *predicate_;
+    Predicate predicate_;
 public:
-    TreeNodeP(Predicate *predicate) : 
+    std::vector <ITreeNode *> arguments_;
+    TreeNodeP(Predicate predicate) : 
         ITreeNode(NODE_P), 
         predicate_(predicate_) {}
 };
@@ -85,7 +88,7 @@ private:
     ITreeNode *parse_term (const Lexer &lexems, size_t &state);
 public:
     Formula(const Lexer &lex_array);
-    ~Formula();
+    ~Formula() {};
 };
 
 }
