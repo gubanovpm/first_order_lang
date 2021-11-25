@@ -50,20 +50,29 @@ public:
 
 struct TreeNodeF final : public ITreeNode {
 private:
-    Function  function_;
+    const Function  *function_;
 public:
     std::vector <ITreeNode *> arguments_;
-    TreeNodeF(Function function) :
+    TreeNodeF(Function *function) :
+        ITreeNode(NODE_F), 
+        function_(function) {}
+
+
+    TreeNodeF(const Function *function) :
         ITreeNode(NODE_F), 
         function_(function) {}
 };
 
 struct TreeNodeP final : public ITreeNode {
 private:
-    Predicate predicate_;
+    Predicate *predicate_;
 public:
     std::vector <ITreeNode *> arguments_;
-    TreeNodeP(Predicate predicate) : 
+    TreeNodeP(Predicate *predicate) : 
+        ITreeNode(NODE_P), 
+        predicate_(predicate_) {}
+
+    TreeNodeP(const Predicate *predicate) : 
         ITreeNode(NODE_P), 
         predicate_(predicate_) {}
 };
@@ -88,6 +97,7 @@ private:
     ITreeNode *parse_term (const Lexer &lexems, size_t &state);
 public:
     Formula(const Lexer &lex_array);
+    void show() const;
     ~Formula() {};
 };
 
