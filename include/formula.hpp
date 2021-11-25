@@ -19,13 +19,14 @@ protected:
 public:
     ITreeNode   *left_;
     ITreeNode   *right_;
+    virtual void destroy_subtree();
 
     void setBrac(bool x) { isBrac = x; }
     ITreeNode(node_kind_t type, ITreeNode *left = nullptr, ITreeNode * right = nullptr) :
         type_(type), 
         left_(left),
         right_(right) {} 
-    virtual ~ITreeNode() {}
+    virtual ~ITreeNode() {};
     virtual void show() const = 0;
 };
 
@@ -66,18 +67,20 @@ public:
         function_(function) {}
 
     void show() const override;
+    void destroy_subtree() override;
 };
 
 struct TreeNodeP final : public ITreeNode {
 private:
-public:
     Predicate *predicate_;
+public:
     std::vector <ITreeNode *> arguments_;
     TreeNodeP(Predicate *predicate) : 
         ITreeNode(NODE_P), 
         predicate_(predicate) {}
 
     void show() const override;
+    void destroy_subtree() override;
 };
 
 struct TreeNodeO final : public ITreeNode {
@@ -102,7 +105,7 @@ private:
 public:
     Formula(const Lexer &lex_array);
     void show() const;
-    ~Formula() {};
+    ~Formula();
 };
 
 }

@@ -10,7 +10,7 @@ first_order_language::Formula::Formula(const Lexer &lexems) {
 }
 
 first_order_language::ITreeNode *first_order_language::Formula::parse_term (const Lexer &lexems, size_t &state) {
-    std::cout << "brand new term with state = " << state << " and kind = " << lexems[state]->kind() << " is " ; lexems[state]->show(); std::cout << std::endl;
+    // std::cout << "brand new term with state = " << state << " and kind = " << lexems[state]->kind() << " is " ; lexems[state]->show(); std::cout << std::endl;
     if (state > lexems.size())
         return nullptr;
     
@@ -159,9 +159,9 @@ void first_order_language::TreeNodeO::show() const {
     
     left_->show();
     switch (kind_) {
-        case OP_AND  : std::cout << "&"  ; break;
-        case OP_OR   : std::cout << "|"  ; break;
-        case OP_IMPL : std::cout << "->" ; break;
+        case OP_AND  : std::cout << "& "  ; break;
+        case OP_OR   : std::cout << "| "  ; break;
+        case OP_IMPL : std::cout << "-> " ; break;
     }
     right_->show();
 }
@@ -178,7 +178,7 @@ void first_order_language::TreeNodeP::show() const {
         arguments_[i]->show(); std::cout << ", ";
     }
     if (arguments_.size() - 1 >= 0) arguments_[arguments_.size() - 1]->show();
-    std::cout << ")" ;
+    std::cout << ") " ;
 }
 
 void first_order_language::TreeNodeF::show() const {
@@ -187,7 +187,7 @@ void first_order_language::TreeNodeF::show() const {
         arguments_[i]->show(); std::cout << ", " ;
     }
     if (arguments_.size() - 1 >= 0) arguments_[arguments_.size() - 1]->show();
-    std::cout << ")" ;
+    std::cout << ") " ;
 }
 
 void first_order_language::TreeNodeQ::show() const {
@@ -199,4 +199,29 @@ void first_order_language::TreeNodeQ::show() const {
     std::cout << "< " << name_ << " >: " ;
     // std::cout << left_->type();
     left_->show();
+}
+
+first_order_language::Formula::~Formula() {
+    root_->destroy_subtree();
+}
+
+void first_order_language::ITreeNode::destroy_subtree() {
+    if (left_  != nullptr) left_->destroy_subtree();
+    if (right_ != nullptr) right_->destroy_subtree();
+
+    delete this;
+}
+
+void first_order_language::TreeNodeP::destroy_subtree() {
+    for (int i = 0; i < predicate_->getValence(); ++i)
+        arguments_[i]->destroy_subtree();
+
+    delete this;
+}
+
+void first_order_language::TreeNodeF::destroy_subtree() {
+    for (int i = 0; i < function_->getValence(); ++i)
+        arguments_[i]->destroy_subtree();
+
+    delete this;
 }
