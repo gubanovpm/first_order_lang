@@ -26,6 +26,7 @@ public:
         left_(left),
         right_(right) {} 
     virtual ~ITreeNode() {}
+    virtual void show() const = 0;
 };
 
 struct TreeNodeQ final : public ITreeNode {
@@ -37,6 +38,7 @@ public:
         ITreeNode(NODE_Q),
         kind_(kind), 
         name_(name) {}
+    void show() const override;
 };
 
 struct TreeNodeV final : public ITreeNode {
@@ -46,6 +48,7 @@ public:
     TreeNodeV(std::string name) :
         ITreeNode(NODE_V), 
         name_(name) {}
+    void show() const override;
 };
 
 struct TreeNodeF final : public ITreeNode {
@@ -61,20 +64,20 @@ public:
     TreeNodeF(const Function *function) :
         ITreeNode(NODE_F), 
         function_(function) {}
+
+    void show() const override;
 };
 
 struct TreeNodeP final : public ITreeNode {
 private:
-    Predicate *predicate_;
 public:
+    Predicate *predicate_;
     std::vector <ITreeNode *> arguments_;
     TreeNodeP(Predicate *predicate) : 
         ITreeNode(NODE_P), 
-        predicate_(predicate_) {}
+        predicate_(predicate) {}
 
-    TreeNodeP(const Predicate *predicate) : 
-        ITreeNode(NODE_P), 
-        predicate_(predicate_) {}
+    void show() const override;
 };
 
 struct TreeNodeO final : public ITreeNode {
@@ -85,6 +88,7 @@ public:
         ITreeNode(NODE_O), 
         kind_(kind) {}
 
+    void show() const override;
 };
 
 struct Formula final {

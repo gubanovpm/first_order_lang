@@ -19,6 +19,7 @@ int main () {
 
   #if 1
   first_order_language::Formula parser(test_lexer);
+  parser.show();
   #endif
   
   return 0;

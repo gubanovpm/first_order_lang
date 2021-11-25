@@ -22,7 +22,7 @@ public:
     size_t getValence() const;
 };
 
-static const std::vector < Function > __default_functions__ = { {"+"  ,  2, executeADD2 }, 
+static std::vector < Function > __default_functions__ = { {"+"  ,  2, executeADD2 }, 
                                                                 {"+S" ,  1, executeS1   }, 
                                                                 {"+SM",  1, executeS1M  }, 
                                                                 {"+M" ,  2, executeADD2M}, 
