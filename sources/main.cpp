@@ -5,13 +5,15 @@
 #include "../include/formula.hpp"
 
 int main () {
-  #if 0
+  #if 1
   first_order_language::Signature sign = {};
+  std::cout << "Current readed signature is: " ;
   sign.show();
   #endif
 
   #if 1
   std::string test_lexer;
+  std::getline(std::cin, test_lexer); // to correct example reading
   std::getline(std::cin, test_lexer);
   first_order_language::Lexer lexems(test_lexer);
   lexems.show();

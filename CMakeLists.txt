@@ -8,6 +8,7 @@ set (SOURCES "./sources/main.cpp"
              "./sources/function.cpp"
              "./sources/term.cpp"
              "./sources/formula.cpp"
+             "./sources/finite_interpretation.cpp"
              )
 
 set (HEADERS "./include/signature.hpp"
@@ -17,6 +18,7 @@ set (HEADERS "./include/signature.hpp"
              "./include/lexer.hpp"
              "./include/term.hpp"
              "./include/formula.hpp"
+             "./include/finite_interpretation.hpp"
             )
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 --std=c++2a")
