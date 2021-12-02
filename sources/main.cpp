@@ -17,7 +17,7 @@ int main () {
   std::getline(std::cin, test_lexer); // to correct example reading
   std::getline(std::cin, test_lexer);
   first_order_language::Lexer lexems(test_lexer);
-  lexems.show();
+  // lexems.show();
   #endif
 
   #if 1

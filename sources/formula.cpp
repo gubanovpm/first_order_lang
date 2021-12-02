@@ -43,7 +43,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
             return nullptr;
         }
         case LEX_QUANTIFIER: {
-            // std::cout << "is it quantor?\n" ;
+            // std::cout << "is it quantifier?\n" ;
             ++state;
             if (lexems[state]->type() != LEX_FUNCT) { std::cout << "expected Quantifier Variable" << std::endl; state = lexems.size() + 1; return nullptr; }
             TreeNodeQ *new_node = new TreeNodeQ (quantifier_kind_t(lexems[state - 1]->kind()), lexems[state]->name());
@@ -52,7 +52,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
             return new_node;
         }
         case LEX_FUNCT: {
-            // std::cout << "is it var/fnct/pred?\n" ;
+            // std::cout << "is it var/funct/pred?\n" ;
             size_t number = 0;
             for (; number < __default_functions__.size(); ++number) {
                 if (__default_functions__[number].getName() == lexems[state]->name()) break;
@@ -76,8 +76,6 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
                     if (lexems[state]->kind() != LBRAC) { std::cout << "parse error: after predicate name expected \'(\'"; state = lexems.size() + 1; return nullptr; }
                     ++state;
                     TreeNodeP *new_node = new TreeNodeP (&(__default_predicates__[number]));
-                    // printf("%p\n", new_node->predicate_);
-                    // std::cout << (&__default_predicates__[number])->getName() << std::endl;
                     for (int i = 0; i < __default_predicates__[number].getValence(); ++i) {
                         new_node->arguments_.push_back(parse_term(lexems, state));
                     }

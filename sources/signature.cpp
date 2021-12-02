@@ -20,8 +20,17 @@ first_order_language::Signature::Signature() {
 
         bool isExist = false;
         for (int j = 0; j < __default_functions__.size() ; ++j) {
+
             if (__default_functions__[j].getName() == temp_function_name) {
-                functions_.push_back(__default_functions__[j]);
+                if (temp_function_name == "+M" || temp_function_name == "*M" || temp_function_name == "+SM") {
+                    int mod = 1;
+                    std::cin >> mod ; 
+                    if (mod == 0) { std::cout << "wrong modul operation with 0\n"; exit(1); } 
+
+                    functions_.push_back(__default_functions__[j]);
+                    functions_.back().getConsts()->push_back(mod);
+                } else
+                    functions_.push_back(__default_functions__[j]);
                 isExist = true;
                 break;
             }

@@ -15,3 +15,7 @@ std::string first_order_language::Function::getName() const{
 size_t first_order_language::Function::getValence() const {
     return valence_;
 }
+
+std::vector < SigEType > *first_order_language::Function::getConsts() {
+    return &consts_;
+}

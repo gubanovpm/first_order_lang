@@ -27,6 +27,8 @@ public:
         left_(left),
         right_(right) {} 
     virtual ~ITreeNode() {};
+
+    virtual std::string name() { return "__unnamed__"; }
     virtual void show() const = 0;
 };
 
@@ -50,6 +52,7 @@ public:
         ITreeNode(NODE_V), 
         name_(name) {}
     void show() const override;
+    std::string name() override { return name_; }
 };
 
 struct TreeNodeF final : public ITreeNode {
