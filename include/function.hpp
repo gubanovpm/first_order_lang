@@ -23,10 +23,10 @@ public:
 };
 
 static std::vector < Function > __default_functions__ = { {"+"  ,  2, executeADD2 }, 
-                                                                {"+S" ,  1, executeS1   }, 
-                                                                {"+SM",  2, executeS1M  }, 
-                                                                {"+M" ,  3, executeADD2M}, 
-                                                                {"*"  ,  2, executeMUL2 }, 
-                                                                {"*M" ,  3, executeMUL2M} };
+                                                          {"+S" ,  1, executeS1   }, 
+                                                          {"+SM",  2, executeS1M  }, 
+                                                          {"+M" ,  3, executeADD2M}, 
+                                                          {"*"  ,  2, executeMUL2 }, 
+                                                          {"*M" ,  3, executeMUL2M} };
 
 }

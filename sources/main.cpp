@@ -3,6 +3,7 @@
 #include "../include/signature.hpp"
 #include "../include/lexer.hpp"
 #include "../include/formula.hpp"
+#include "../include/finite_interpretation.hpp"
 
 int main () {
   #if 1
@@ -23,6 +24,10 @@ int main () {
   first_order_language::Formula parser(test_lexer);
   parser.show();
   #endif
+
+  #if 1
+  first_order_language::FiniteInterpretation result(sign);
   
+  #endif
   return 0;
 }

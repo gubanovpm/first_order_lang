@@ -23,6 +23,10 @@ public:
 
     ~Signature() = default;
 
+    std::vector < SigEType  > *constants () { return &constants_ ; }
+    std::vector < Predicate > *predicates() { return &predicates_; }
+    std::vector < Function  > *functions () { return &functions_ ; }
+
     void show() const;
 };
 
