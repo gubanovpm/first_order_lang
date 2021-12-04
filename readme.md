@@ -1,6 +1,7 @@
 # Second task 
 ## You can build Makefile by yourself:
 ```
+mkdir build
 cd ./build
 cmake ..
 make
