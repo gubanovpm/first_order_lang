@@ -31,9 +31,10 @@ public:
         right_(right) {} 
     virtual ~ITreeNode() {};
 
-    virtual std::string name() { return "__unnamed__"; }
+    virtual std::string name() const { return "__unnamed__"; }
     virtual void show() const = 0;
-    virtual std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const = 0;
+    virtual void get_all_variables(std::vector < std::string > &var_names) const {}
+    virtual std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const = 0;
 };
 
 struct TreeNodeQ final : public ITreeNode {
@@ -46,7 +47,9 @@ public:
         kind_(kind), 
         name_(name) {}
     void show() const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
+
+    virtual void get_all_variables(std::vector < std::string > &var_names) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
 };
 
 struct TreeNodeV final : public ITreeNode {
@@ -57,8 +60,10 @@ public:
         ITreeNode(NODE_V), 
         name_(name) {}
     void show() const override;
-    std::string name() override { return name_; }
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
+
+    virtual void get_all_variables(std::vector < std::string > &var_names) const override;
+    std::string name() const override { return name_; }
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
 };
 
 struct TreeNodeF final : public ITreeNode {
@@ -66,18 +71,18 @@ private:
     const Function  *function_;
 public:
     std::vector <ITreeNode *> arguments_;
+
     TreeNodeF(Function *function) :
         ITreeNode(NODE_F), 
         function_(function) {}
-
-
     TreeNodeF(const Function *function) :
         ITreeNode(NODE_F), 
         function_(function) {}
-
     void show() const override;
     void destroy_subtree() override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
+    
+    virtual void get_all_variables(std::vector < std::string > &var_names) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
 };
 
 struct TreeNodeP final : public ITreeNode {
@@ -91,7 +96,9 @@ public:
 
     void show() const override;
     void destroy_subtree() override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
+    
+    virtual void get_all_variables(std::vector < std::string > &var_names) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
 };
 
 struct TreeNodeO final : public ITreeNode {
@@ -103,13 +110,14 @@ public:
         kind_(kind) {}
 
     void show() const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
 };
 
 struct Formula final {
 private:
     ITreeNode *root_;
     FiniteInterpretation *interpretation_;
+    void __get_all_variables__(std::vector < std::string > &var_names) const;
 
     ITreeNode *parse_expr (const Lexer &lexems, size_t &state);
     ITreeNode *parse_conj (const Lexer &lexems, size_t &state);
@@ -118,6 +126,7 @@ private:
 public:
     Formula(const Lexer &lex_array, FiniteInterpretation *interpretation_);
     void show() const;
+    SigEType models() const;
     ~Formula();
 };
 

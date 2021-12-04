@@ -1,5 +1,6 @@
 #include "../include/formula.hpp"
 #include "../include/lexer.hpp"
+#include "../include/default.hpp"
 #include "../include/function.hpp"
 #include "../include/predicate.hpp"
 #include "../include/finite_interpretation.hpp"
@@ -24,7 +25,6 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
 
             ITreeNode *new_node = parse_expr(lexems, state);
             if (new_node != nullptr) new_node->setBrac(true);
-            // std::cout << "out of parse (expr)" << std::endl;
 
             if (lexems[state]->kind() == RBRAC) ++state;
             else { std::cout << "pars error: expected \')\'" << std::endl; state = lexems.size() + 1; return nullptr; }
@@ -95,7 +95,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
             break;
         }
 
-        default: { std::cout << "parse error 404" << std::endl; state = lexems.size() + 1; return nullptr; }
+        default: { std::cout << "parse error 404: unknown lexem type" << std::endl; state = lexems.size() + 1; return nullptr; }
     }
     printf("a kak?\n"); std::cout << state << " is " ; lexems[state]->show();
     return nullptr;
@@ -171,8 +171,6 @@ void first_order_language::TreeNodeV::show() const {
 }
 
 void first_order_language::TreeNodeP::show() const {
-    // std::cout << "try pred show" << std::endl;
-    // printf("%p\n", predicate_);
     std::cout << predicate_->getName() << "(" ;
     for (int i = 0; i < arguments_.size() - 1; ++i) {
         arguments_[i]->show(); std::cout << ", ";
@@ -197,7 +195,6 @@ void first_order_language::TreeNodeQ::show() const {
         default: std::cout << "my kind is = " << kind_ ; break;
     }
     std::cout << "< " << name_ << " >: " ;
-    // std::cout << left_->type();
     left_->show();
 }
 
@@ -226,7 +223,7 @@ void first_order_language::TreeNodeF::destroy_subtree() {
     delete this;
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered_map < std::string, SigEType > *variables) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
     if (std::isdigit(name_[0])) return { true, std::atoi(name_.data()) };
     
     if (variables->find(name_) == variables->end()) return {false, 0};
@@ -234,42 +231,42 @@ std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered
     return {true, result};
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeP::eval(std::unordered_map < std::string, SigEType > *variables) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeP::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
     std::pair < bool, SigEType > result;
     std::vector < SigEType > arguments = {} ;
     for (int i = 0; i < predicate_->getValence(); ++i) {
-        result = arguments_[i]->eval(variables);
+        result = arguments_[i]->eval(variables, interpretation);
         if (!result.first) return { false, 0 };
         arguments.push_back(result.second);
     }
     return {true, predicate_->execute(arguments)} ;
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeF::eval(std::unordered_map < std::string, SigEType > *variables) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeF::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
     std::pair < bool, SigEType > result;
     std::vector < SigEType > arguments = {};
     for (int i = 0 ; i < function_->getConsts()->size(); ++i) {
         arguments.push_back((*function_->getConsts())[i]);
     }
     for (int i = 0; i < function_->getValence(); ++i) {
-        result = arguments_[i]->eval(variables);
+        result = arguments_[i]->eval(variables, interpretation);
         if (!result.first) return { false, 0 } ;
         arguments.push_back(result.second);
     }
     return {true, function_->execute(arguments)};
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered_map < std::string, SigEType > *variables) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
     switch (kind_) {
         case OP_AND: {
             bool fl1, fl2 ;
             std::pair < bool, SigEType > result ;
             
-            result = left_->eval(variables) ; fl1 = result.first ;
+            result = left_->eval(variables, interpretation) ; fl1 = result.first ;
             if (!fl1) return { false, 0 } ;
             if (!result.second) return {true, false};
             
-            result = right_->eval(variables); fl2 = result.second;
+            result = right_->eval(variables, interpretation); fl2 = result.second;
             if (!fl2) return { false, 0 } ;
             if (!result.second) return {true, false};
             return {true, true};
@@ -278,10 +275,10 @@ std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered
             bool fl1, fl2 ;
             std::pair < bool, SigEType > result ;
             
-            result = left_->eval(variables) ; fl1 = result.first ;
+            result = left_->eval(variables, interpretation) ; fl1 = result.first ;
             if (!fl1) return { false, 0 } ;
             
-            result = right_->eval(variables); fl2 = result.second;
+            result = right_->eval(variables, interpretation); fl2 = result.second;
             if (!fl2) return { false, 0 } ;
 
             return {true, fl1 || fl2};
@@ -290,27 +287,102 @@ std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered
             bool fl1, fl2;
             std::pair < bool, SigEType > result ;
 
-            result = left_->eval(variables) ; fl1 = result.first ;
+            result = left_->eval(variables, interpretation) ; fl1 = result.first ;
             if (!fl1) return { false, 0 } ;
             
-            result = right_->eval(variables); fl2 = result.second;
+            result = right_->eval(variables, interpretation); fl2 = result.second;
             if (!fl2) return { false, 0 } ;
 
             return {true, !fl1 || fl2};
         }
         case OP_NOT: {
             std::pair < bool, SigEType > result ;
-            result = left_->eval(variables) ;
+            result = left_->eval(variables, interpretation) ;
             if (!result.first) return { false, 0 } ;
             return {true, !result.second} ;
         }
-        default: {
-            std::cout << "unknown eval construction" << std::endl;
-            exit(1);
-        }
+        default: { std::cout << "eval_op: unknown eval construction" << std::endl; exit(1); }
     }
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered_map < std::string, SigEType > *variables) const {
-    return {true, 0};
+std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+    switch (kind_) {
+        case QUANTIFIER_ANY:   {
+            std::pair < bool, SigEType > result;
+            for (auto it = interpretation->M_.begin(); it != interpretation->M_.end(); ++it) {
+                (*variables)[name_] = *it;
+                result = left_->eval(variables, interpretation);
+                if (!result.first) return  {false, 0}   ;
+                if (!result.second) return {true, false};
+            }
+            return {true, true};
+        }
+        case QUANTIFIER_EXIST: {
+            std::pair < bool, SigEType > result;
+            for (auto it = interpretation->M_.begin(); it != interpretation->M_.end(); ++it) {
+                (*variables)[name_] = *it;
+                result = left_->eval(variables, interpretation);
+                if (!result.first) return {false, 0}  ;
+                if (result.second) return {true, true};
+            }
+            return {true, false};
+        } 
+        default: { std::cout << "eval_q: unknown eval construction" << std::endl; exit(1); }
+    }
+}
+
+void first_order_language::Formula::__get_all_variables__(std::vector < std::string > &var_names) const {
+    root_->get_all_variables(var_names);
+}
+
+void first_order_language::TreeNodeV::get_all_variables(std::vector < std::string > &var_names) const {
+    if (left_  != nullptr) left_ ->get_all_variables(var_names);
+    if (right_ != nullptr) right_->get_all_variables(var_names);
+
+    if (!std::isdigit(name_[0])) var_names.push_back(name_);
+}
+
+void first_order_language::TreeNodeQ::get_all_variables(std::vector < std::string > &var_names) const {
+    if (left_  != nullptr) left_ ->get_all_variables(var_names);
+    if (right_ != nullptr) right_->get_all_variables(var_names);
+
+    if (!std::isdigit(name_[0])) var_names.push_back(name_);
+}
+
+void first_order_language::TreeNodeP::get_all_variables(std::vector < std::string > &var_names) const {
+    if (left_  != nullptr) left_ ->get_all_variables(var_names);
+    if (right_ != nullptr) right_->get_all_variables(var_names);
+
+    for (int i = 0; i < arguments_.size(); ++i) {
+        arguments_[i]->get_all_variables(var_names);
+    }
+}
+
+void first_order_language::TreeNodeF::get_all_variables(std::vector < std::string > &var_names) const {
+    if (left_  != nullptr) left_ ->get_all_variables(var_names);
+    if (right_ != nullptr) right_->get_all_variables(var_names);
+
+    for (int i = 0; i < arguments_.size(); ++i) {
+        arguments_[i]->get_all_variables(var_names);
+    }
+}
+
+SigEType first_order_language::Formula::models() const {
+    std::vector < std::string > var_names;
+    __get_all_variables__(var_names);
+
+    std::unordered_map < std::string, SigEType > variables;
+    for (int i = 0; i < var_names.size(); ++i) {
+        variables[var_names[i]] = 0xDEADFA11;   // POISON
+    }
+    
+    std::pair < bool, SigEType > result = root_->eval(&variables, interpretation_);
+
+    #if 0
+    for (auto it = variables.begin(); it != variables.end(); ++it) {
+        std::cout << it->first << " = " << it->second << std::endl;
+    }
+    #endif
+
+    return result.second;
 }

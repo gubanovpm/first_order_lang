@@ -8,7 +8,7 @@
 
 namespace first_order_language {
 
-// for the future
+// for the future - idk for what we needed this class
 
 struct ITerm {
 protected:

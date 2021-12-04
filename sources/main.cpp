@@ -12,12 +12,12 @@ int main () {
   sign.show();
   #endif
 
-  #if 1
   std::string test_lexer;
   std::getline(std::cin, test_lexer); // to correct example reading
   std::getline(std::cin, test_lexer);
   first_order_language::Lexer lexems(test_lexer);
-  // lexems.show();
+  #if 0
+  lexems.show();
   #endif
 
   #if 1
@@ -27,6 +27,7 @@ int main () {
   #if 1
   first_order_language::Formula parser(test_lexer, &result);
   parser.show();
+  std::cout << "Models result : " << parser.models() << std::endl;
   #endif
 
   return 0;

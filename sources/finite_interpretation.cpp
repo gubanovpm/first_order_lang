@@ -45,6 +45,7 @@ first_order_language::FiniteInterpretation::FiniteInterpretation(Signature &sign
     } 
     std::cout << std::endl;
 
+    #if 0  // if you want to see for every elements
     std::cout << "for every elements (I):" << std::endl ;
     auto iter = M_.begin();
     for (auto it1 = I_.begin(); it1 != I_.end(); ++it1, ++iter) {
@@ -54,6 +55,7 @@ first_order_language::FiniteInterpretation::FiniteInterpretation(Signature &sign
         }
         std::cout << std::endl;
     }
+    #endif
 }
 
 void first_order_language::FiniteInterpretation::recursive_cursed_function(std::unordered_set < SigEType > *where, std::vector<SigEType> *set, Function *maker, size_t last_var_count) {
