@@ -21,13 +21,13 @@ int main () {
   #endif
 
   #if 1
-  first_order_language::Formula parser(test_lexer);
-  parser.show();
+  first_order_language::FiniteInterpretation result(sign);
   #endif
 
   #if 1
-  first_order_language::FiniteInterpretation result(sign);
-  
+  first_order_language::Formula parser(test_lexer, &result);
+  parser.show();
   #endif
+
   return 0;
 }

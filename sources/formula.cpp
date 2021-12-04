@@ -2,8 +2,10 @@
 #include "../include/lexer.hpp"
 #include "../include/function.hpp"
 #include "../include/predicate.hpp"
+#include "../include/finite_interpretation.hpp"
 
-first_order_language::Formula::Formula(const Lexer &lexems) {
+first_order_language::Formula::Formula(const Lexer &lexems, FiniteInterpretation *interpretation) :
+    interpretation_(interpretation) {
     size_t state = 0;
     root_ = parse_expr(lexems, state);
     if (state != lexems.size()) { std::cout << "parse error" << std::endl; exit(1); }
@@ -222,4 +224,93 @@ void first_order_language::TreeNodeF::destroy_subtree() {
         arguments_[i]->destroy_subtree();
 
     delete this;
+}
+
+std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered_map < std::string, SigEType > *variables) const {
+    if (std::isdigit(name_[0])) return { true, std::atoi(name_.data()) };
+    
+    if (variables->find(name_) == variables->end()) return {false, 0};
+    SigEType result = (*variables)[name_];
+    return {true, result};
+}
+
+std::pair< bool, SigEType > first_order_language::TreeNodeP::eval(std::unordered_map < std::string, SigEType > *variables) const {
+    std::pair < bool, SigEType > result;
+    std::vector < SigEType > arguments = {} ;
+    for (int i = 0; i < predicate_->getValence(); ++i) {
+        result = arguments_[i]->eval(variables);
+        if (!result.first) return { false, 0 };
+        arguments.push_back(result.second);
+    }
+    return {true, predicate_->execute(arguments)} ;
+}
+
+std::pair< bool, SigEType > first_order_language::TreeNodeF::eval(std::unordered_map < std::string, SigEType > *variables) const {
+    std::pair < bool, SigEType > result;
+    std::vector < SigEType > arguments = {};
+    for (int i = 0 ; i < function_->getConsts()->size(); ++i) {
+        arguments.push_back((*function_->getConsts())[i]);
+    }
+    for (int i = 0; i < function_->getValence(); ++i) {
+        result = arguments_[i]->eval(variables);
+        if (!result.first) return { false, 0 } ;
+        arguments.push_back(result.second);
+    }
+    return {true, function_->execute(arguments)};
+}
+
+std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered_map < std::string, SigEType > *variables) const {
+    switch (kind_) {
+        case OP_AND: {
+            bool fl1, fl2 ;
+            std::pair < bool, SigEType > result ;
+            
+            result = left_->eval(variables) ; fl1 = result.first ;
+            if (!fl1) return { false, 0 } ;
+            if (!result.second) return {true, false};
+            
+            result = right_->eval(variables); fl2 = result.second;
+            if (!fl2) return { false, 0 } ;
+            if (!result.second) return {true, false};
+            return {true, true};
+        }
+        case OP_OR: {
+            bool fl1, fl2 ;
+            std::pair < bool, SigEType > result ;
+            
+            result = left_->eval(variables) ; fl1 = result.first ;
+            if (!fl1) return { false, 0 } ;
+            
+            result = right_->eval(variables); fl2 = result.second;
+            if (!fl2) return { false, 0 } ;
+
+            return {true, fl1 || fl2};
+        }
+        case OP_IMPL: {
+            bool fl1, fl2;
+            std::pair < bool, SigEType > result ;
+
+            result = left_->eval(variables) ; fl1 = result.first ;
+            if (!fl1) return { false, 0 } ;
+            
+            result = right_->eval(variables); fl2 = result.second;
+            if (!fl2) return { false, 0 } ;
+
+            return {true, !fl1 || fl2};
+        }
+        case OP_NOT: {
+            std::pair < bool, SigEType > result ;
+            result = left_->eval(variables) ;
+            if (!result.first) return { false, 0 } ;
+            return {true, !result.second} ;
+        }
+        default: {
+            std::cout << "unknown eval construction" << std::endl;
+            exit(1);
+        }
+    }
+}
+
+std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered_map < std::string, SigEType > *variables) const {
+    return {true, 0};
 }

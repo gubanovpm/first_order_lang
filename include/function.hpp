@@ -19,10 +19,10 @@ public:
         executor_(executor) {
     }
 
-    SigEType execute(const std::vector <SigEType> &value);
+    SigEType execute(const std::vector <SigEType> &value) const;
     std::string getName() const;
     size_t getValence() const;
-    std::vector < SigEType > *getConsts(); 
+    std::vector < SigEType > *getConsts() const; 
 };
 
 static std::vector < Function > __default_functions__ = { {"+"  ,  2, executeADD2 }, 

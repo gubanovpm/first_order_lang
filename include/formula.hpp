@@ -1,12 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 #include "./lexer.hpp"
 #include "./default.hpp"
 #include "./function.hpp"
 #include "./predicate.hpp"
+#include "./finite_interpretation.hpp"
 
 namespace first_order_language {
 
@@ -30,6 +33,7 @@ public:
 
     virtual std::string name() { return "__unnamed__"; }
     virtual void show() const = 0;
+    virtual std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const = 0;
 };
 
 struct TreeNodeQ final : public ITreeNode {
@@ -42,6 +46,7 @@ public:
         kind_(kind), 
         name_(name) {}
     void show() const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
 };
 
 struct TreeNodeV final : public ITreeNode {
@@ -53,6 +58,7 @@ public:
         name_(name) {}
     void show() const override;
     std::string name() override { return name_; }
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
 };
 
 struct TreeNodeF final : public ITreeNode {
@@ -71,6 +77,7 @@ public:
 
     void show() const override;
     void destroy_subtree() override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
 };
 
 struct TreeNodeP final : public ITreeNode {
@@ -84,6 +91,7 @@ public:
 
     void show() const override;
     void destroy_subtree() override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
 };
 
 struct TreeNodeO final : public ITreeNode {
@@ -95,18 +103,20 @@ public:
         kind_(kind) {}
 
     void show() const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables) const override;
 };
 
 struct Formula final {
 private:
     ITreeNode *root_;
+    FiniteInterpretation *interpretation_;
 
     ITreeNode *parse_expr (const Lexer &lexems, size_t &state);
     ITreeNode *parse_conj (const Lexer &lexems, size_t &state);
     ITreeNode *parse_disj (const Lexer &lexems, size_t &state);
     ITreeNode *parse_term (const Lexer &lexems, size_t &state);
 public:
-    Formula(const Lexer &lex_array);
+    Formula(const Lexer &lex_array, FiniteInterpretation *interpretation_);
     void show() const;
     ~Formula();
 };
