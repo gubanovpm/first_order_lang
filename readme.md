@@ -10,8 +10,8 @@ make
 
 ## To run some examples (if your current location is /first_order_language/build ) :
 ```
-./first_order_language < ../tests/complete/test_1.dat
-./first_order_language < ../tests/complete/test_2.dat
+./first_order_language < ../tests/test/test_1.dat
+./first_order_language < ../tests/test/test_2.dat
 ...
 ```
 
@@ -46,12 +46,17 @@ make
 = <> 
 ```
 ### An example of a correct formula description (can also be seen in ./tests/lexer/).
-#### Logical operations
+#### Logical operations:
 ```
 &  -- logical AND
 |  -- logical OR
 ~  -- logical NOT
 -> -- logical IMPLICATION
+```
+### Quantifires:
+```
+!A -- universal quantification
+!E -- existential quantification
 ```
 #### Description of a function or predicate - first its name and in parentheses to the right its arguments: =(x, x).
 
