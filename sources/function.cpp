@@ -4,7 +4,7 @@
 #include "../include/default.hpp"
 #include "../include/function.hpp"
 
-SigEType first_order_language::Function::execute(const std::vector <SigEType> &value) const{
+SigEType first_order_language::Function::execute(const std::vector <SigEType> &value)   {
     return executor_(value);
 }
 
@@ -16,6 +16,6 @@ size_t first_order_language::Function::getValence() const {
     return valence_;
 }
 
-std::vector < SigEType > *first_order_language::Function::getConsts() const{
+std::vector < SigEType > *first_order_language::Function::getConsts() {
     return const_cast< std::vector < SigEType > *> (&consts_);
 }

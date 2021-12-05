@@ -4,6 +4,7 @@
 #include "../include/function.hpp"
 
 #include "../include/default.hpp"
+#include "../include/global.hpp"
 
 first_order_language::Signature::Signature() {
     std::cout << "Starting signature initialize...\nPlease, enter the signature fields : Constants Functions Predicates" << std::endl ;
@@ -26,9 +27,10 @@ first_order_language::Signature::Signature() {
                     int mod = 1;
                     std::cin >> mod ; 
                     if (mod == 0) { std::cout << "wrong modul operation with 0\n"; exit(1); } 
-
+                    __default_functions__[j].getConsts()->push_back(mod);
+                    // std::cout << "|" << __default_functions__[j].getName() << "|" << std::endl;
+                    // std::cout << "cur size consts_ = " << __default_functions__[j].getConsts()->size() << std::endl;
                     functions_.push_back(__default_functions__[j]);
-                    functions_.back().getConsts()->push_back(mod);
                 } else
                     functions_.push_back(__default_functions__[j]);
                 isExist = true;

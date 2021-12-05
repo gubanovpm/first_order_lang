@@ -19,17 +19,17 @@ public:
         executor_(executor) {
     }
 
-    SigEType execute(const std::vector <SigEType> &value) const;
+    SigEType execute(const std::vector <SigEType> &value);
     std::string getName() const;
     size_t getValence() const;
-    std::vector < SigEType > *getConsts() const; 
+    std::vector < SigEType > *getConsts(); 
 };
 
-static std::vector < Function > __default_functions__ = { {"+"  ,  2, executeADD2 }, 
-                                                          {"+S" ,  1, executeS1   }, 
-                                                          {"+SM",  1, executeS1M  }, 
-                                                          {"+M" ,  2, executeADD2M}, 
-                                                          {"*"  ,  2, executeMUL2 }, 
-                                                          {"*M" ,  2, executeMUL2M} };
-
 }
+
+static std::vector < first_order_language::Function > __default_functions__ = { {"+"  ,  2, first_order_language::executeADD2 }, 
+                                                          {"+S" ,  1, first_order_language::executeS1   }, 
+                                                          {"+SM",  1, first_order_language::executeS1M  }, 
+                                                          {"+M" ,  2, first_order_language::executeADD2M}, 
+                                                          {"*"  ,  2, first_order_language::executeMUL2 }, 
+                                                          {"*M" ,  2, first_order_language::executeMUL2M} };

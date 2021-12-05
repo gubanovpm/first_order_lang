@@ -34,7 +34,7 @@ public:
     virtual std::string name() const { return "__unnamed__"; }
     virtual void show() const = 0;
     virtual void get_all_variables(std::vector < std::string > &var_names) const {}
-    virtual std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const = 0;
+    virtual std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) = 0;
 };
 
 struct TreeNodeQ final : public ITreeNode {
@@ -49,7 +49,7 @@ public:
     void show() const override;
 
     virtual void get_all_variables(std::vector < std::string > &var_names) const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  override;
 };
 
 struct TreeNodeV final : public ITreeNode {
@@ -63,26 +63,24 @@ public:
 
     virtual void get_all_variables(std::vector < std::string > &var_names) const override;
     std::string name() const override { return name_; }
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  override;
 };
 
 struct TreeNodeF final : public ITreeNode {
 private:
-    const Function  *function_;
+    Function  *function_;
 public:
     std::vector <ITreeNode *> arguments_;
 
     TreeNodeF(Function *function) :
         ITreeNode(NODE_F), 
         function_(function) {}
-    TreeNodeF(const Function *function) :
-        ITreeNode(NODE_F), 
-        function_(function) {}
+
     void show() const override;
     void destroy_subtree() override;
     
     virtual void get_all_variables(std::vector < std::string > &var_names) const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  override;
 };
 
 struct TreeNodeP final : public ITreeNode {
@@ -98,7 +96,7 @@ public:
     void destroy_subtree() override;
     
     virtual void get_all_variables(std::vector < std::string > &var_names) const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  override;
 };
 
 struct TreeNodeO final : public ITreeNode {
@@ -110,7 +108,7 @@ public:
         kind_(kind) {}
 
     void show() const override;
-    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const override;
+    std::pair< bool, SigEType > eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  override;
 };
 
 struct Formula final {
@@ -119,12 +117,12 @@ private:
     FiniteInterpretation *interpretation_;
     void __get_all_variables__(std::vector < std::string > &var_names) const;
 
-    ITreeNode *parse_expr (const Lexer &lexems, size_t &state);
-    ITreeNode *parse_conj (const Lexer &lexems, size_t &state);
-    ITreeNode *parse_disj (const Lexer &lexems, size_t &state);
-    ITreeNode *parse_term (const Lexer &lexems, size_t &state);
+    ITreeNode *parse_expr (const Lexer &lexems, size_t &state, Signature *siganture);
+    ITreeNode *parse_conj (const Lexer &lexems, size_t &state, Signature *siganture);
+    ITreeNode *parse_disj (const Lexer &lexems, size_t &state, Signature *siganture);
+    ITreeNode *parse_term (const Lexer &lexems, size_t &state, Signature *siganture);
 public:
-    Formula(const Lexer &lex_array, FiniteInterpretation *interpretation_);
+    Formula(const Lexer &lex_array, FiniteInterpretation *interpretation_, Signature *siganture);
     void show() const;
     SigEType models() const;
     ~Formula();

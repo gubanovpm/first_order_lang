@@ -25,9 +25,9 @@ int main () {
   #endif
 
   #if 1
-  first_order_language::Formula parser(test_lexer, &result);
+  first_order_language::Formula parser(test_lexer, &result, &sign);
   parser.show();
-  std::cout << "Models result : " << parser.models() << std::endl;
+  std::cout << parser.models() << std::endl;
   #endif
 
   return 0;

@@ -3,16 +3,20 @@
 #include "../include/default.hpp"
 #include "../include/function.hpp"
 #include "../include/predicate.hpp"
+#include "../include/signature.hpp"
 #include "../include/finite_interpretation.hpp"
+#include "../include/global.hpp"
 
-first_order_language::Formula::Formula(const Lexer &lexems, FiniteInterpretation *interpretation) :
+
+
+first_order_language::Formula::Formula(const Lexer &lexems, FiniteInterpretation *interpretation, Signature *siganture) :
     interpretation_(interpretation) {
     size_t state = 0;
-    root_ = parse_expr(lexems, state);
+    root_ = parse_expr(lexems, state, siganture);
     if (state != lexems.size()) { std::cout << "parse error" << std::endl; exit(1); }
 }
 
-first_order_language::ITreeNode *first_order_language::Formula::parse_term (const Lexer &lexems, size_t &state) {
+first_order_language::ITreeNode *first_order_language::Formula::parse_term (const Lexer &lexems, size_t &state, Signature *siganture) {
     // std::cout << "brand new term with state = " << state << " and kind = " << lexems[state]->kind() << " is " ; lexems[state]->show(); std::cout << std::endl;
     if (state > lexems.size())
         return nullptr;
@@ -23,7 +27,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
             if (lexems[state]->kind() == LBRAC) ++state;
             else {std::cout << "pars error: unexpected bracket type" << std::endl; state = lexems.size() + 1; return nullptr; }
 
-            ITreeNode *new_node = parse_expr(lexems, state);
+            ITreeNode *new_node = parse_expr(lexems, state, siganture);
             if (new_node != nullptr) new_node->setBrac(true);
 
             if (lexems[state]->kind() == RBRAC) ++state;
@@ -37,7 +41,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
                 TreeNodeO *new_node = new TreeNodeO (OP_NOT);
                 ++state;
                 
-                new_node->left_ = parse_term(lexems, state);
+                new_node->left_ = parse_term(lexems, state, siganture);
                 return new_node;
             }
             std::cout << "pars error: term operation not NOT )" << std::endl;
@@ -50,36 +54,38 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
             if (lexems[state]->type() != LEX_FUNCT) { std::cout << "expected Quantifier Variable" << std::endl; state = lexems.size() + 1; return nullptr; }
             TreeNodeQ *new_node = new TreeNodeQ (quantifier_kind_t(lexems[state - 1]->kind()), lexems[state]->name());
             ++state;
-            new_node->left_ = parse_term(lexems, state);
+            new_node->left_ = parse_term(lexems, state, siganture);
             return new_node;
         }
         case LEX_FUNCT: {
             // std::cout << "is it var/funct/pred?\n" ;
             size_t number = 0;
-            for (; number < __default_functions__.size(); ++number) {
-                if (__default_functions__[number].getName() == lexems[state]->name()) break;
+            for (; number < siganture->functions()->size(); ++number) {
+                if ((*siganture->functions())[number].getName() == lexems[state]->name()) break;
             }
-            if (number < __default_functions__.size()) {
+            if (number < siganture->functions()->size()) {
+                // std::cout << "|" << lexems[state]->name() << "|" << std::endl;
                 ++state;
                 if (lexems[state]->kind() != LBRAC) { std::cout << "parse error: after function name expected \'(\'"; state = lexems.size() + 1; return nullptr; }
                 ++state;
-                TreeNodeF *new_node = new TreeNodeF (&(__default_functions__[number]));
-                for (int i = 0; i < __default_functions__[number].getValence(); ++i) {
-                    new_node->arguments_.push_back(parse_term(lexems, state));
+                TreeNodeF *new_node = new TreeNodeF (&((*siganture->functions())[number]));
+
+                for (int i = 0; i < (*siganture->functions())[number].getValence(); ++i) {
+                    new_node->arguments_.push_back(parse_term(lexems, state, siganture));
                 }
                 if (lexems[state]->kind() != RBRAC) { std::cout << "parse error: at the end of argument list expected \')\'"; state = lexems.size() + 1; return nullptr; }
                 ++state;
                 return new_node;
             } else {
-                for (number = 0; number < __default_predicates__.size(); ++number)
-                    if (__default_predicates__[number].getName() == lexems[state]->name()) break;
-                if (number < __default_predicates__.size()) {
+                for (number = 0; number < siganture->predicates()->size(); ++number)
+                    if ((*siganture->predicates())[number].getName() == lexems[state]->name()) break;
+                if (number <siganture->predicates()->size()) {
                     ++state;
                     if (lexems[state]->kind() != LBRAC) { std::cout << "parse error: after predicate name expected \'(\'"; state = lexems.size() + 1; return nullptr; }
                     ++state;
-                    TreeNodeP *new_node = new TreeNodeP (&(__default_predicates__[number]));
-                    for (int i = 0; i < __default_predicates__[number].getValence(); ++i) {
-                        new_node->arguments_.push_back(parse_term(lexems, state));
+                    TreeNodeP *new_node = new TreeNodeP (&((*siganture->predicates())[number]));
+                    for (int i = 0; i < (*siganture->predicates())[number].getValence(); ++i) {
+                        new_node->arguments_.push_back(parse_term(lexems, state, siganture));
                     }
                     if (lexems[state]->kind() != RBRAC) { std::cout << "parse error: at the end of argument list expected \')\'"; state = lexems.size() + 1; return nullptr; }
                     ++state;
@@ -101,10 +107,10 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_term (cons
     return nullptr;
 }
 
-first_order_language::ITreeNode *first_order_language::Formula::parse_disj (const Lexer &lexems, size_t &state) {
+first_order_language::ITreeNode *first_order_language::Formula::parse_disj (const Lexer &lexems, size_t &state, Signature *siganture) {
     ITreeNode *new_node = nullptr;
 
-    new_node = parse_term(lexems, state);
+    new_node = parse_term(lexems, state, siganture);
     if (state >= lexems.size() || (lexems[state]->kind() != OP_AND)) {
         return new_node;
     }
@@ -112,15 +118,15 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_disj (cons
     ITreeNode *temp = new TreeNodeO(OP_AND);
     temp->left_  = new_node;
     ++state;
-    temp->right_ = parse_disj(lexems, state);
+    temp->right_ = parse_disj(lexems, state, siganture);
 
     return temp;
 }
 
-first_order_language::ITreeNode *first_order_language::Formula::parse_conj (const Lexer &lexems, size_t &state) {
+first_order_language::ITreeNode *first_order_language::Formula::parse_conj (const Lexer &lexems, size_t &state, Signature *siganture) {
 	ITreeNode *new_node = nullptr;
 
-	new_node = parse_disj(lexems, state);
+	new_node = parse_disj(lexems, state, siganture);
 	if (state >= lexems.size() || lexems[state]->kind() != OP_OR) {
 		return new_node;
 	}
@@ -128,15 +134,15 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_conj (cons
 	ITreeNode *temp = new TreeNodeO(OP_OR) ;
 	temp->left_ = new_node;
 	++state; 
-	temp->right_ = parse_conj(lexems, state);
+	temp->right_ = parse_conj(lexems, state, siganture);
 
 	return temp;
 }
 
-first_order_language::ITreeNode *first_order_language::Formula::parse_expr (const Lexer &lexems, size_t &state) {
+first_order_language::ITreeNode *first_order_language::Formula::parse_expr (const Lexer &lexems, size_t &state, Signature *siganture) {
 	ITreeNode *new_node = nullptr;
 
-	new_node = parse_conj(lexems, state);
+	new_node = parse_conj(lexems, state, siganture);
 	if (state >= lexems.size() || lexems[state]->kind() != OP_IMPL) {
 		return new_node;
 	}
@@ -144,7 +150,7 @@ first_order_language::ITreeNode *first_order_language::Formula::parse_expr (cons
 	ITreeNode *temp = new TreeNodeO(OP_IMPL);	
 	temp->left_ = new_node;
 	++state; 
-	temp->right_ = parse_expr(lexems, state);
+	temp->right_ = parse_expr(lexems, state, siganture);
 
 	return temp;
 }
@@ -223,7 +229,7 @@ void first_order_language::TreeNodeF::destroy_subtree() {
     delete this;
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  {
     if (std::isdigit(name_[0])) return { true, std::atoi(name_.data()) };
     
     if (variables->find(name_) == variables->end()) return {false, 0};
@@ -231,32 +237,38 @@ std::pair< bool, SigEType > first_order_language::TreeNodeV::eval(std::unordered
     return {true, result};
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeP::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeP::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  {
     std::pair < bool, SigEType > result;
     std::vector < SigEType > arguments = {} ;
     for (int i = 0; i < predicate_->getValence(); ++i) {
         result = arguments_[i]->eval(variables, interpretation);
         if (!result.first) return { false, 0 };
         arguments.push_back(result.second);
-    }
+    }   
     return {true, predicate_->execute(arguments)} ;
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeF::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeF::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  {
     std::pair < bool, SigEType > result;
     std::vector < SigEType > arguments = {};
     for (int i = 0 ; i < function_->getConsts()->size(); ++i) {
+        // std::cout << "why?" << std::endl ;
         arguments.push_back((*function_->getConsts())[i]);
+        if (function_->getConsts()->size() > 1) break;
     }
     for (int i = 0; i < function_->getValence(); ++i) {
         result = arguments_[i]->eval(variables, interpretation);
         if (!result.first) return { false, 0 } ;
         arguments.push_back(result.second);
     }
+    // for (int i = 0; i < arguments.size(); ++i) {
+    //     std::cout << "!" << arguments[i] << std::endl;
+    // }
+    // std::cout << "function <" << function_->getName() << "> result" << arguments[0] << arguments[1] << arguments[2] << " = " << function_->execute(arguments) << std::endl ;
     return {true, function_->execute(arguments)};
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  {
     switch (kind_) {
         case OP_AND: {
             bool fl1, fl2 ;
@@ -277,9 +289,11 @@ std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered
             
             result = left_->eval(variables, interpretation) ; fl1 = result.first ;
             if (!fl1) return { false, 0 } ;
+            fl1 = result.second;
             
-            result = right_->eval(variables, interpretation); fl2 = result.second;
+            result = right_->eval(variables, interpretation); fl2 = result.first;
             if (!fl2) return { false, 0 } ;
+            fl2 = result.second;
 
             return {true, fl1 || fl2};
         }
@@ -289,9 +303,13 @@ std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered
 
             result = left_->eval(variables, interpretation) ; fl1 = result.first ;
             if (!fl1) return { false, 0 } ;
+            fl1 = result.second;
             
-            result = right_->eval(variables, interpretation); fl2 = result.second;
+            result = right_->eval(variables, interpretation); fl2 = result.first;
             if (!fl2) return { false, 0 } ;
+            fl2 = result.second;
+
+            // std::cout << "I am impl: left = " << fl1 << " " ; left_->show(); std::cout << " ; right = " << fl2 << std::endl;
 
             return {true, !fl1 || fl2};
         }
@@ -305,13 +323,14 @@ std::pair< bool, SigEType > first_order_language::TreeNodeO::eval(std::unordered
     }
 }
 
-std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation) const {
+std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered_map < std::string, SigEType > *variables, FiniteInterpretation *interpretation)  {
     switch (kind_) {
         case QUANTIFIER_ANY:   {
             std::pair < bool, SigEType > result;
             for (auto it = interpretation->M_.begin(); it != interpretation->M_.end(); ++it) {
                 (*variables)[name_] = *it;
                 result = left_->eval(variables, interpretation);
+
                 if (!result.first) return  {false, 0}   ;
                 if (!result.second) return {true, false};
             }
@@ -321,10 +340,13 @@ std::pair< bool, SigEType > first_order_language::TreeNodeQ::eval(std::unordered
             std::pair < bool, SigEType > result;
             for (auto it = interpretation->M_.begin(); it != interpretation->M_.end(); ++it) {
                 (*variables)[name_] = *it;
+
                 result = left_->eval(variables, interpretation);
+
                 if (!result.first) return {false, 0}  ;
                 if (result.second) return {true, true};
             }
+
             return {true, false};
         } 
         default: { std::cout << "eval_q: unknown eval construction" << std::endl; exit(1); }
